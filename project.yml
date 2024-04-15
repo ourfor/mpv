@@ -1,0 +1,64 @@
+name: MPV
+options:
+  bundleIdPrefix: top.ourfor.opensource
+settings:
+  HEADER_SEARCH_PATHS: [
+    $SRCROOT/**,
+    "/opt/homebrew/opt/googletest/include"
+  ]
+targets:
+  Player:
+    type: tool
+    platform: macOS
+    deploymentTarget: 10.15
+    sources:
+      - path: .
+        includes:
+          - "**/*.[ch]"
+          - "**/*.cc"
+          - "**/*.m"
+          - "**/*.mm"
+          - "**/*.[ch]pp"
+        excludes:
+          - ".git/*"
+          - ".vscode/*"
+        buildPhase: none
+
+    preBuildScripts:
+      - script: PATH=/opt/homebrew/bin:$PATH /opt/homebrew/bin/meson compile -C build -j4
+        name: Build Target
+    postCompileScripts:
+      - script: |
+          cp $PROJECT_DIR/build/mpv $BUILT_PRODUCTS_DIR/$EXECUTABLE_NAME
+          chown $USER $BUILT_PRODUCTS_DIR/$EXECUTABLE_NAME
+        name: Copy Executable
+  Dummy:
+    type: tool
+    platform: macOS
+    deploymentTarget: 10.15
+    sources:
+      - path: .
+        includes:
+          - "**/*.[ch]"
+          - "**/*.cc"
+          - "**/*.m"
+          - "**/*.mm"
+          - "**/*.[ch]pp"
+        excludes:
+          - "bazel-*"
+          - ".git/*"
+          - ".vscode/*"
+schemes:
+  Player:
+    build:
+      targets:
+        Player: [run]
+    run:
+      debugEnabled: true
+      commandLineArguments:
+        "-v": true
+        "--no-config": true
+        "loadfile": true
+        "https://drive.endemy.me/breaking-bad.mp4": true
+      environmentVariables:
+        SRCROOT: $(SRCROOT)
