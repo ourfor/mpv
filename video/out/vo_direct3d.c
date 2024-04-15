@@ -828,10 +828,10 @@ static int preinit(struct vo *vo)
     /* w32_common framework call. Configures window on the screen, gets
      * fullscreen dimensions and does other useful stuff.
      */
-    if (!vo_w32_init(vo)) {
-        MP_VERBOSE(priv, "Configuring onscreen window failed.\n");
-        goto err_out;
-    }
+//    if (!vo_w32_init(vo)) {
+//        MP_VERBOSE(priv, "Configuring onscreen window failed.\n");
+//        goto err_out;
+//    }
 
     if (!init_d3d(priv))
         goto err_out;
@@ -861,7 +861,8 @@ static int control(struct vo *vo, uint32_t request, void *data)
     }
 
     int events = 0;
-    int r = vo_w32_control(vo, &events, request, data);
+    //int r = vo_w32_control(vo, &events, request, data);
+    int r = VO_TRUE;
 
     if (events & VO_EVENT_RESIZE)
         resize_d3d(priv);
@@ -880,7 +881,7 @@ static int reconfig(struct vo *vo, struct mp_image_params *params)
 
     priv->have_image = false;
 
-    vo_w32_config(vo);
+    // vo_w32_config(vo);
 
     if ((priv->image_format != params->imgfmt)
         || (priv->src_width != params->w)
@@ -949,7 +950,7 @@ static void uninit(struct vo *vo)
     MP_VERBOSE(priv, "uninit called.\n");
 
     uninit_d3d(priv);
-    vo_w32_uninit(vo);
+    //vo_w32_uninit(vo);
     if (priv->d3d9_dll)
         FreeLibrary(priv->d3d9_dll);
     priv->d3d9_dll = NULL;
