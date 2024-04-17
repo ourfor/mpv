@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "windows.h": "c",
+        "versionhelpers.h": "c",
+        "io.h": "c",
+        "stdbool.h": "c",
+        "bstr.h": "c",
+        "d3d11_helpers.h": "c",
+        "mp_image.h": "c"
+    }
+}

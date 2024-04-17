@@ -264,6 +264,7 @@ extern "C" {
  * Return the MPV_CLIENT_API_VERSION the mpv source has been compiled with.
  */
 MPV_EXPORT unsigned long mpv_client_api_version(void);
+MPV_EXPORT void mpv_get_swapchain(void **p_swapchain);
 
 /**
  * Client context used by the client API. Every client has its own private

@@ -26,6 +26,35 @@
 #include "video/out/w32_common.h"
 #include "context.h"
 #include "ra_d3d11.h"
+#include "libmpv/client.h"
+
+#define xlog(format, ...)                                          \
+  printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+         ##__VA_ARGS__)
+#define xinfo(format, ...)                                         \
+  printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+         ##__VA_ARGS__)
+#define xerror(format, ...)                                        \
+  printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+         ##__VA_ARGS__)
+#define xdebug(format, ...)                                        \
+  printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+         ##__VA_ARGS__)
+#define xfault(format, ...)                                        \
+  printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+         ##__VA_ARGS__)
+
+struct windows_swapchain {
+    void *swapchain;
+};
+
+static struct windows_swapchain g_swapchain = {0};
+
+MPV_EXPORT struct windows_swapchain* mpv_windows_swapchain = &g_swapchain;
+void mpv_get_swapchain(void **p_swapchain) {
+    xlog("set swapchain %p\n", g_swapchain.swapchain);
+    *p_swapchain = g_swapchain.swapchain;
+}
 
 struct d3d11_opts {
     int feature_level;
@@ -147,7 +176,7 @@ static bool resize(struct ra_ctx *ctx)
 
 static bool d3d11_reconfig(struct ra_ctx *ctx)
 {
-    vo_w32_config(ctx->vo);
+    //vo_w32_config(ctx->vo);
     return resize(ctx);
 }
 
@@ -402,7 +431,8 @@ static int d3d11_control(struct ra_ctx *ctx, int *events, int request, void *arg
         fullscreen_switch_needed = false;
     }
 
-    ret = vo_w32_control(ctx->vo, events, request, arg);
+//    ret = vo_w32_control(ctx->vo, events, request, arg);
+    ret = VO_TRUE;
 
     // if entering full screen, handle d3d11 after general windowing stuff
     if (fullscreen_switch_needed && p->vo_opts->fullscreen) {
@@ -429,7 +459,7 @@ static void d3d11_uninit(struct ra_ctx *ctx)
     if (ctx->ra)
         ra_tex_free(ctx->ra, &p->backbuffer);
     SAFE_RELEASE(p->swapchain);
-    vo_w32_uninit(ctx->vo);
+    //vo_w32_uninit(ctx->vo);
     SAFE_RELEASE(p->device);
 
     // Destroy the RA last to prevent objects we hold from showing up in D3D's
@@ -481,11 +511,11 @@ static bool d3d11_init(struct ra_ctx *ctx)
     if (!ctx->ra)
         goto error;
 
-    if (!vo_w32_init(ctx->vo))
-        goto error;
+//    if (!vo_w32_init(ctx->vo))
+//        goto error;
 
-    if (ctx->opts.want_alpha)
-        vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
+//    if (ctx->opts.want_alpha)
+//        vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
 
     UINT usage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
     if (ID3D11Device_GetFeatureLevel(p->device) >= D3D_FEATURE_LEVEL_11_0 &&
@@ -495,7 +525,8 @@ static bool d3d11_init(struct ra_ctx *ctx)
     }
 
     struct d3d11_swapchain_opts scopts = {
-        .window = vo_w32_hwnd(ctx->vo),
+//        .window = vo_w32_hwnd(ctx->vo),
+        .window = NULL,
         .width = ctx->vo->dwidth,
         .height = ctx->vo->dheight,
         .format = p->opts->output_format,
@@ -509,7 +540,11 @@ static bool d3d11_init(struct ra_ctx *ctx)
     };
     if (!mp_d3d11_create_swapchain(p->device, ctx->log, &scopts, &p->swapchain))
         goto error;
-
+    
+    mpv_windows_swapchain->swapchain = p->swapchain;
+    xinfo("swapchain %p", p->swapchain);
+    xinfo("global swapchain %p", mpv_windows_swapchain->swapchain);
+    xinfo("mpv_windows_swapchain %p", mpv_windows_swapchain);
     return true;
 
 error:
