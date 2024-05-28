@@ -144,7 +144,7 @@ _ffmpeg () {
         --disable-{doc,programs,muxers,encoders}
         --enable-muxer=spdif --enable-encoder=mjpeg,png --enable-libdav1d
     )
-    pkg-config vulkan && args+=(--enable-vulkan --enable-libshaderc)
+    # pkg-config vulkan && args+=(--enable-vulkan --enable-libshaderc)
     ../configure "${args[@]}"
     makeplusinstall
     popd
@@ -205,7 +205,7 @@ _libplacebo () {
     [ -d libplacebo ] || $gitclone https://code.videolan.org/videolan/libplacebo.git
     builddir libplacebo
     meson setup .. --cross-file "$prefix_dir/crossfile" \
-        -Ddemos=false -D{opengl,d3d11}=enabled
+        -Ddemos=false -D{opengl,vulkan}=disabled -Dd3d11=enabled
     makeplusinstall
     popd
 }
@@ -290,17 +290,20 @@ rm -rf $build
 
 meson setup $build --cross-file "$prefix_dir/crossfile" \
     --werror                   \
-    -Dc_args="-Wno-error=deprecated -Wno-error=deprecated-declarations" \
+    -Dc_args="-Wno-error=deprecated -Wno-error=deprecated-declarations -Wno-error=unused-function -Wno-error=unused-variable" \
     --buildtype debugoptimized \
-    -Dlibmpv=true -Dlua=luajit \
-    -D{shaderc,spirv-cross,d3d11}=enabled
+    -Dlibmpv=true -Dlua=disabled \
+    -Dvulkan=disabled -Dgl=disabled \
+    -Duwp=enabled -Dcplayer=false \
+    -D{spirv-cross,d3d11}=enabled
 
 meson compile -C $build
 
 if [ "$2" = pack ]; then
     mkdir -p artifact/tmp
     echo "Copying:"
-    cp -pv $build/mpv.com $build/mpv.exe artifact/
+    # cp -pv $build/mpv.com $build/mpv.exe artifact/
+    cp -pv $build/libmpv-2.dll artifact/
     # copy everything we can get our hands on
     cp -p "$prefix_dir/bin/"*.dll artifact/tmp/
     shopt -s nullglob
@@ -314,9 +317,9 @@ if [ "$2" = pack ]; then
         av*.dll sw*.dll lib{ass,freetype,fribidi,harfbuzz,iconv,placebo}-[0-9]*.dll
         lib{shaderc_shared,spirv-cross-c-shared,dav1d}.dll zlib1.dll
     )
-    if [[ -f vulkan-1.dll ]]; then
-        dlls+=(vulkan-1.dll)
-    fi
+    # if [[ -f vulkan-1.dll ]]; then
+    #     dlls+=(vulkan-1.dll)
+    # fi
     mv -v "${dlls[@]}" ..
     popd
 

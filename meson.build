@@ -474,7 +474,11 @@ features += {'uwp': uwp.found()}
 if features['uwp']
     dependencies += uwp
     path_source = files('osdep/path-uwp.c')
+    d3d11lib = cc.find_library('d3d11', required: uwp_opt)
+    dependencies += d3d11lib
+    flags += ['-D__WINRT__=1']
     subprocess_source = []
+    sources += files('video/out/uwp/uwp.c')
 endif
 
 features += {'win32-executable': win32 and get_option('cplayer')}
@@ -912,7 +916,7 @@ if features['caca']
 endif
 
 direct3d_opt = get_option('direct3d').require(
-    get_option('gpl') and features['win32-desktop'],
+    get_option('gpl') and (features['win32-desktop'] or features['uwp']),
     error_message: 'the build is not GPL or this is not a win32 desktop!',
 )
 direct3d = cc.has_header('d3d9.h', required: direct3d_opt)
@@ -960,7 +964,7 @@ if features['sdl2-video']
 endif
 
 shaderc = dependency('shaderc', required:
-    get_option('shaderc').require(features['win32-desktop']))
+    get_option('shaderc').require(features['win32-desktop'] or features['uwp']))
 features += {'shaderc': shaderc.found()}
 if features['shaderc']
     dependencies += shaderc
@@ -980,14 +984,14 @@ if features['posix']
 endif
 
 spirv_cross = dependency('spirv-cross-c-shared', required:
-    get_option('spirv-cross').require(features['win32-desktop']))
+    get_option('spirv-cross').require(features['win32-desktop'] or features['uwp']))
 features += {'spirv-cross': spirv_cross.found()}
 if features['spirv-cross']
     dependencies += spirv_cross
 endif
 
 d3d11 = get_option('d3d11').require(
-    features['win32-desktop'] and features['shaderc'] and features['spirv-cross'],
+    (features['win32-desktop'] or features['uwp']) and features['shaderc'] and features['spirv-cross'],
     error_message: 'Either is not a win32 desktop or shaderc nor spirv-cross were found!',
 )
 features += {'d3d11': d3d11.allowed()}
