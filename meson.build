@@ -1838,6 +1838,19 @@ if get_option('fuzzers')
     subdir('fuzzers')
 endif
 
+message('[')
+current_source_dir = meson.current_source_dir() + '/'
+all_srcs = []
+foreach ss: sources
+    full_path = ss.full_path()
+    path = full_path.replace(current_source_dir, '')
+    if path.endswith('.c') or path.endswith('.m') or path.endswith('.cpp')
+        all_srcs += '"' + '@0@'.format(path) + '",'
+    endif
+endforeach
+summary({'all_sources': all_srcs})
+message(']')
+
 summary({'d3d11': features['d3d11'],
          'javascript': features['javascript'],
          'libmpv': get_option('libmpv'),
