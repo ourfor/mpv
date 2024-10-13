@@ -1,6 +1,9 @@
 // swift-tools-version:5.5
 
 import PackageDescription
+import Foundation
+
+let projectPath = URL(fileURLWithPath: #file).deletingLastPathComponent().path
 
 var sources = [
   "audio/aframe.c",
@@ -203,7 +206,6 @@ var sources = [
   "audio/out/ao_coreaudio_properties.c",
   "audio/out/ao_coreaudio_chmap.c",
   "audio/out/ao_coreaudio_utils.c",
-  "audio/out/ao_coreaudio_properties.c",
   "video/out/opengl/common.c",
   "video/out/opengl/context.c",
   "video/out/opengl/formats.c",
@@ -220,9 +222,14 @@ var sources = [
   "video/out/hwdec/hwdec_mac_gl.c",
   "video/out/hwdec/hwdec_vt_pl.m",
   "video/out/vulkan/context_mac.m",
+  
+//   main
+  "osdep/main-fn-mac.c"
 ]
 
-var resources: [Resource] = []
+var resources: [Resource] = [
+    .copy("etc/mpv.svg")
+]
 var linkerSettings: [LinkerSetting] = [
   .linkedLibrary("ass"),
   .linkedLibrary("unibreak"),
@@ -313,7 +320,7 @@ var cSettings: [CSetting] = [
   .headerSearchPath("build/deps/ffmpeg/7.1/include"),
   .headerSearchPath("build/deps/libplacebo/7.349.0/include"),
   .headerSearchPath("build/deps/shaderc/2024.3/include"),
-  .headerSearchPath("build/deps/vulkan-loader/1.3.296/../../../opt/vulkan-headers/include"),
+  .headerSearchPath("build/deps/vulkan-headers/1.3.296/include"),
   .headerSearchPath("build/deps/little-cms2/2.16/include"),
   .headerSearchPath("build/deps/libbluray/1.3.4/include"),
   .headerSearchPath("build/deps/fontconfig/2.15.0/include"),
@@ -361,6 +368,8 @@ var cSettings: [CSetting] = [
     "-Wno-pointer-sign",
     "-Wno-error=deprecated",
     "-Wno-error=deprecated-declarations",
+    "-Wno-conversion",
+    "-Wno-strict-prototypes",
     "-fno-objc-arc",
   ]),
 ]
@@ -406,13 +415,13 @@ var swiftSettings: [SwiftSetting] = [
     "-g",
     "-O",
     "-module-name", "swift",
-    "-emit-module-path", "osdep/mac/swift.swiftmodule",
-    "-import-objc-header", "osdep/mac/app_bridge_objc.h",
-    "-emit-objc-header-path", "osdep/mac/swift.h",
-    "-I", ".",
-    "-I", "build",
-    "-I", "build/deps/libplacebo/7.349.0/include",
-    "-I", "build/deps/ffmpeg/7.1/include",
+    "-emit-module-path", "\(projectPath)/osdep/mac/swift.swiftmodule",
+    "-import-objc-header", "\(projectPath)/osdep/mac/app_bridge_objc.h",
+    "-emit-objc-header-path", "\(projectPath)/osdep/mac/swift.h",
+    "-I", "\(projectPath)",
+    "-I", "\(projectPath)/build",
+    "-I", "\(projectPath)/build/deps/libplacebo/7.349.0/include",
+    "-I", "\(projectPath)/build/deps/ffmpeg/7.1/include",
   ]),
 ]
 
@@ -420,11 +429,12 @@ let package = Package(
   name: "libmpv",
   platforms: [
     .macOS(.v12),
-    .iOS(.v14),
-    .tvOS(.v14),
+//    .iOS(.v14),
+//    .tvOS(.v14),
   ],
   products: [
-    .library(name: "mpv", type: .dynamic, targets: ["mpv"])
+//    .library(name: "mpv", type: .dynamic, targets: ["mpv"])
+    .executable(name: "mpv", targets: ["mpv"])
   ],
   dependencies: [],
   targets: [
@@ -470,6 +480,7 @@ let package = Package(
 // ln -s /opt/homebrew/Cellar/libplacebo build/deps
 // ln -s /opt/homebrew/Cellar/shaderc build/deps
 // ln -s /opt/homebrew/Cellar/vulkan-loader build/deps
+// ln -s /opt/homebrew/Cellar/vulkan-headers build/deps
 // ln -s /opt/homebrew/Cellar/little-cms2 build/deps
 // ln -s /opt/homebrew/Cellar/libbluray build/deps
 // ln -s /opt/homebrew/Cellar/fontconfig build/deps
