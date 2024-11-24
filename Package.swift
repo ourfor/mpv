@@ -228,7 +228,6 @@ var sources = [
 ]
 
 var resources: [Resource] = [
-    .copy("etc/mpv.svg")
 ]
 var linkerSettings: [LinkerSetting] = [
   .linkedLibrary("ass"),
@@ -370,6 +369,8 @@ var cSettings: [CSetting] = [
     "-Wno-error=deprecated-declarations",
     "-Wno-conversion",
     "-Wno-strict-prototypes",
+    "-Wno-unused-variable",
+    "-Wno-unused-function",
     "-fno-objc-arc",
   ]),
 ]
@@ -426,7 +427,7 @@ var swiftSettings: [SwiftSetting] = [
 ]
 
 let package = Package(
-  name: "libmpv",
+  name: "mpv",
   platforms: [
     .macOS(.v12),
 //    .iOS(.v14),
