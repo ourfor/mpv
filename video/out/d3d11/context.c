@@ -87,7 +87,7 @@ const struct m_sub_options d3d11_conf = {
             {"auto", -1},
             {"window", 0},
             {"composition", 1}),
-             .flags = UPDATE_VO,
+            .flags = UPDATE_VO,
         },
         {0}
     },
@@ -165,9 +165,8 @@ static bool resize(struct ra_ctx *ctx)
 
 static bool d3d11_reconfig(struct ra_ctx *ctx)
 {
-    if (!ctx->opts.composition) {
+    if (!ctx->opts.composition)
         vo_w32_config(ctx->vo);
-    }
     return resize(ctx);
 }
 
