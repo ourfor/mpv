@@ -8,6 +8,7 @@
 #include "ra.h"
 
 struct ra_ctx_opts {
+    bool composition;    // enable swapchain composition
     bool allow_sw;        // allow software renderers
     bool want_alpha;      // create an alpha framebuffer if possible
     bool debug;           // enable debugging layers/callbacks etc.
