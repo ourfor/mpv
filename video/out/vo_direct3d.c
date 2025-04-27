@@ -46,6 +46,10 @@
 #error GPL only
 #endif
 
+#define xlog(format, ...)                                          \
+   printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+          ##__VA_ARGS__)
+
 #define DEVTYPE D3DDEVTYPE_HAL
 //#define DEVTYPE D3DDEVTYPE_REF
 
@@ -862,6 +866,7 @@ static int control(struct vo *vo, uint32_t request, void *data)
 
     int events = 0;
     int r = vo_w32_control(vo, &events, request, data);
+    xlog("vo->w32 = %p\n", vo->w32);
 
     if (events & VO_EVENT_RESIZE)
         resize_d3d(priv);

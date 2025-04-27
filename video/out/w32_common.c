@@ -53,6 +53,10 @@
 
 #define MPV_WINDOW_CLASS_NAME L"mpv"
 
+#define xlog(format, ...)                                          \
+   printf("[%s:%d]\n%s\n" format, __FILE__, __LINE__, __FUNCTION__, \
+          ##__VA_ARGS__)
+
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 
@@ -2447,6 +2451,7 @@ static void do_control(void *ptr)
 
 int vo_w32_control(struct vo *vo, int *events, int request, void *arg)
 {
+    xlog("vo->w32 = %p\n", vo->w32);
     if (vo->display_swapchain)
         return VO_NOTAVAIL;
     struct vo_w32_state *w32 = vo->w32;
