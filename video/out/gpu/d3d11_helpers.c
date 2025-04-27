@@ -650,6 +650,7 @@ static HRESULT create_swapchain_1_2(ID3D11Device *dev, IDXGIFactory2 *factory,
         .Format = format,
         .SampleDesc = { .Count = 1 },
         .BufferUsage = opts->usage,
+        .Scaling = 0
     };
 
     if (flip) {

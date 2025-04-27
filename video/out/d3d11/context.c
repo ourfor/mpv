@@ -165,8 +165,8 @@ static bool resize(struct ra_ctx *ctx)
 
 static bool d3d11_reconfig(struct ra_ctx *ctx)
 {
-    if (!ctx->opts.composition)
-        vo_w32_config(ctx->vo);
+    // if (!ctx->opts.composition)
+    //     vo_w32_config(ctx->vo);
     return resize(ctx);
 }
 
@@ -463,7 +463,8 @@ static int d3d11_control(struct ra_ctx *ctx, int *events, int request, void *arg
         fullscreen_switch_needed = false;
     }
 
-    ret = ctx->opts.composition ? VO_TRUE : vo_w32_control(ctx->vo, events, request, arg);
+    // ret = ctx->opts.composition ? VO_TRUE : vo_w32_control(ctx->vo, events, request, arg);
+    ret = VO_TRUE;
 
     // if entering full screen, handle d3d11 after general windowing stuff
     if (fullscreen_switch_needed && p->vo_opts->fullscreen) {
@@ -490,11 +491,11 @@ static void d3d11_uninit(struct ra_ctx *ctx)
     if (ctx->ra)
         ra_tex_free(ctx->ra, &p->backbuffer);
     SAFE_RELEASE(p->swapchain);
-    if (!ctx->opts.composition) {
-        vo_w32_uninit(ctx->vo);
-    } else {
-        vo_w32_swapchain(ctx->vo, NULL);
-    }
+    // if (!ctx->opts.composition) {
+    //     vo_w32_uninit(ctx->vo);
+    // } else {
+    //     vo_w32_swapchain(ctx->vo, NULL);
+    // }
     SAFE_RELEASE(p->device);
 
     // Destroy the RA last to prevent objects we hold from showing up in D3D's
@@ -548,11 +549,11 @@ static bool d3d11_init(struct ra_ctx *ctx)
         goto error;
 
     ctx->opts.composition = p->opts->output_mode == 1;
-    if (!ctx->opts.composition && !vo_w32_init(ctx->vo))
-        goto error;
+    // if (!ctx->opts.composition && !vo_w32_init(ctx->vo))
+    //     goto error;
 
-    if (!ctx->opts.composition && ctx->opts.want_alpha)
-        vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
+    // if (!ctx->opts.composition && ctx->opts.want_alpha)
+    //     vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
 
     UINT usage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
     if (ID3D11Device_GetFeatureLevel(p->device) >= D3D_FEATURE_LEVEL_11_0 &&
@@ -562,7 +563,7 @@ static bool d3d11_init(struct ra_ctx *ctx)
     }
 
     struct d3d11_swapchain_opts scopts = {
-        .window = ctx->opts.composition ? NULL : vo_w32_hwnd(ctx->vo),
+        .window = NULL,
         .width = ctx->vo->dwidth,
         .height = ctx->vo->dheight,
         .format = p->opts->output_format,
@@ -592,7 +593,7 @@ static void d3d11_update_render_opts(struct ra_ctx *ctx)
     if (ctx->opts.composition) {
         return;
     }
-    vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
+    // vo_w32_set_transparency(ctx->vo, ctx->opts.want_alpha);
 }
 
 IDXGISwapChain *ra_d3d11_ctx_get_swapchain(struct ra_ctx *ra)
