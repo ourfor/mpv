@@ -2447,6 +2447,8 @@ static void do_control(void *ptr)
 
 int vo_w32_control(struct vo *vo, int *events, int request, void *arg)
 {
+    if (vo->display_swapchain)
+        return VO_NOTAVAIL;
     struct vo_w32_state *w32 = vo->w32;
     if (request == VOCTRL_CHECK_EVENTS) {
         *events |= atomic_fetch_and(&w32->event_flags, 0);
